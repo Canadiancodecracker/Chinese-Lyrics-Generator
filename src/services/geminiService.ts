@@ -1,11 +1,11 @@
-import { GoogleGenerativeAI, Type } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { LyricsResponse } from "../types";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 if (!apiKey) {
     throw new Error("VITE_GEMINI_API_KEY environment variable not set");
 }
-const ai = new GoogleGenerativeAI(apiKey);
+const client = new GoogleGenerativeAI(apiKey);
 
 const systemInstruction = `You are a world-class Chinese lyricist and music theorist AI. Your task is to take a user's idea and transform it into a complete song.
 1.  **Analyze the User's Prompt**: Carefully read the user's input to understand the core theme, story, and emotion.
@@ -20,34 +20,37 @@ const systemInstruction = `You are a world-class Chinese lyricist and music theo
 
 export async function generateLyrics(prompt: string): Promise<LyricsResponse> {
     try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-            config: {
-                systemInstruction: systemInstruction,
+        const model = client.getGenerativeModel({ 
+            model: 'gemini-2.0-flash',
+            systemInstruction: systemInstruction,
+        });
+
+        const response = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema: {
-                    type: Type.OBJECT,
+                    type: SchemaType.OBJECT,
                     properties: {
                         analysis: {
-                            type: Type.OBJECT,
+                            type: SchemaType.OBJECT,
                             properties: {
-                                genre: { type: Type.STRING, description: "The determined music genre." },
-                                mood: { type: Type.STRING, description: "The overall mood of the song." },
-                                rhythm: { type: Type.STRING, description: "The suggested rhythm or tempo." },
-                                structure: { type: Type.STRING, description: "The song's lyrical structure." },
+                                genre: { type: SchemaType.STRING, description: "The determined music genre." },
+                                mood: { type: SchemaType.STRING, description: "The overall mood of the song." },
+                                rhythm: { type: SchemaType.STRING, description: "The suggested rhythm or tempo." },
+                                structure: { type: SchemaType.STRING, description: "The song's lyrical structure." },
                             },
-                             required: ["genre", "mood", "rhythm", "structure"],
+                            required: ["genre", "mood", "rhythm", "structure"],
                         },
-                        title: { type: Type.STRING, description: "The generated title in Simplified Chinese." },
-                        lyrics: { type: Type.STRING, description: "The full lyrics in Simplified Chinese, with stanzas separated by newlines." },
+                        title: { type: SchemaType.STRING, description: "The generated title in Simplified Chinese." },
+                        lyrics: { type: SchemaType.STRING, description: "The full lyrics in Simplified Chinese, with stanzas separated by newlines." },
                     },
                     required: ["analysis", "title", "lyrics"],
                 },
             },
         });
 
-        const jsonText = response.text?.trim();
+        const jsonText = response.response.text()?.trim();
         if (!jsonText) {
             throw new Error("The AI returned an empty response. Please try again.");
         }
