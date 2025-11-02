@@ -5,7 +5,8 @@ import Header from './components/Header';
 import PromptInput from './components/PromptInput';
 import LyricsDisplay from './components/LyricsDisplay';
 import Loader from './components/Loader';
-import Error from './components/Error';
+// Fix: Renamed 'Error' component import to 'ErrorDisplay' to avoid name collision with the built-in 'Error' class.
+import ErrorDisplay from './components/Error';
 
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -19,14 +20,14 @@ const App: React.FC = () => {
     "一只迷失在未来都市的猫",
   ];
 
-  const handleGenerate = useCallback(async (currentPrompt: string) => {
+  const handleGenerate = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setLyricsResponse(null);
     try {
-      const response = await generateLyrics(currentPrompt);
+      const response = await generateLyrics(prompt);
       setLyricsResponse(response);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -35,11 +36,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-  
-  const onGenerate = useCallback(() => {
-    handleGenerate(prompt);
-  }, [prompt, handleGenerate]);
+  }, [prompt]);
 
   return (
     <div className="min-h-screen bg-gray-900 bg-gradient-to-br from-gray-900 via-gray-900 to-cyan-900/50 text-white font-sans">
@@ -49,12 +46,12 @@ const App: React.FC = () => {
           <PromptInput 
             prompt={prompt} 
             setPrompt={setPrompt} 
-            onGenerate={onGenerate} 
+            onGenerate={handleGenerate} 
             isLoading={isLoading}
             examplePrompts={examplePrompts} 
           />
           {isLoading && <Loader />}
-          {error && <Error message={error} />}
+          {error && <ErrorDisplay message={error} />}
           {lyricsResponse && <LyricsDisplay data={lyricsResponse} />}
         </div>
       </main>

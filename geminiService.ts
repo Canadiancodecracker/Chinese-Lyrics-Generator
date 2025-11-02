@@ -49,7 +49,11 @@ export async function generateLyrics(prompt: string): Promise<LyricsResponse> {
             },
         });
 
-        const jsonText = response.text.trim();
+        const jsonText = response.text?.trim();
+        if (!jsonText) {
+            throw new Error("The AI returned an empty response. Please try again.");
+        }
+        
         let parsedResponse: LyricsResponse;
         try {
             parsedResponse = JSON.parse(jsonText);
