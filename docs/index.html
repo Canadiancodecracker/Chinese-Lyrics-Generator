@@ -8,8 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@19/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body { background-color: #111827; }
+    body { background-color: #111827; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
     .font-serif { font-family: 'Noto Serif SC', serif; }
     @keyframes fade-in {
       from { opacity: 0; transform: translateY(10px); }
@@ -20,5 +23,143 @@
 </head>
 <body>
   <div id="root"></div>
+  
+  <script type="text/babel">
+    const API_KEY = 'YOUR_API_KEY_HERE';
+    
+    function App() {
+      const [prompt, setPrompt] = React.useState('');
+      const [loading, setLoading] = React.useState(false);
+      const [error, setError] = React.useState(null);
+      const [result, setResult] = React.useState(null);
+      
+      const examplePrompts = [
+        "雨夜里，一个人在空荡的车站等车",
+        "夏日午后，回忆童年的冰淇淋和蝉鸣",
+        "一只迷失在未来都市的猫",
+      ];
+      
+      const handleGenerate = async () => {
+        if (!prompt.trim()) return;
+        
+        setLoading(true);
+        setError(null);
+        setResult(null);
+        
+        try {
+          const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=' + API_KEY, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: `You are a Chinese lyricist. Generate song lyrics based on: ${prompt}\n\nRespond ONLY with valid JSON in this exact format:\n{"title":"song title","lyrics":"lyrics text","analysis":{"genre":"genre","mood":"mood","rhythm":"rhythm","structure":"structure"}}`
+                }]
+              }]
+            })
+          });
+          
+          const data = await response.json();
+          const text = data.candidates[0].content.parts[0].text;
+          const result = JSON.parse(text);
+          setResult(result);
+        } catch (err) {
+          setError(err.message || 'Failed to generate lyrics');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      return (
+        <div className="min-h-screen bg-gray-900 bg-gradient-to-br from-gray-900 via-gray-900 to-cyan-900/50 text-white">
+          <main className="container mx-auto px-4 py-16 flex flex-col items-center">
+            <div className="w-full max-w-2xl">
+              <header className="text-center mb-12">
+                <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300 mb-2">
+                  AI 中文歌词创作
+                </h1>
+                <p className="text-lg text-gray-400">将你的灵感，变成一首动人的歌。</p>
+              </header>
+              
+              <div className="mb-6">
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="输入一个故事、一种心情、或一句简单的想法..."
+                  className="w-full h-32 p-4 bg-gray-800 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-gray-200 placeholder-gray-500"
+                  disabled={loading}
+                />
+              </div>
+              
+              <button
+                onClick={handleGenerate}
+                disabled={loading || !prompt.trim()}
+                className="w-full px-6 py-3 font-semibold text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 disabled:bg-gray-600 mb-4"
+              >
+                {loading ? '生成中...' : '生成歌词'}
+              </button>
+              
+              <div className="mb-6 text-center">
+                <p className="text-sm text-gray-500 mb-3">没灵感？试试这些：</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {examplePrompts.map((ex) => (
+                    <button
+                      key={ex}
+                      onClick={() => setPrompt(ex)}
+                      disabled={loading}
+                      className="px-3 py-1 text-sm bg-gray-800/50 border border-gray-700 rounded-full hover:bg-gray-700 text-gray-300"
+                    >
+                      {ex}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {error && (
+                <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-300 mb-6">
+                  错误: {error}
+                </div>
+              )}
+              
+              {result && (
+                <div className="p-6 bg-gray-800/50 border border-gray-700 rounded-lg">
+                  <h2 className="text-3xl font-bold text-cyan-300 mb-6">{result.title}</h2>
+                  
+                  <div className="mb-6 grid grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-gray-900/40 rounded">
+                      <p className="text-sm text-gray-400">曲风</p>
+                      <p className="text-white">{result.analysis.genre}</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-900/40 rounded">
+                      <p className="text-sm text-gray-400">情绪</p>
+                      <p className="text-white">{result.analysis.mood}</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-900/40 rounded">
+                      <p className="text-sm text-gray-400">节奏</p>
+                      <p className="text-white">{result.analysis.rhythm}</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-900/40 rounded">
+                      <p className="text-sm text-gray-400">结构</p>
+                      <p className="text-white">{result.analysis.structure}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-300 mb-3">歌词</h3>
+                    <div className="whitespace-pre-wrap text-gray-200 leading-relaxed text-center font-serif p-4 bg-gray-900/40 rounded">
+                      {result.lyrics}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      );
+    }
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
