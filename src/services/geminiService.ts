@@ -1,13 +1,11 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { LyricsResponse } from '../types';
+import { GoogleGenerativeAI, Type } from "@google/generative-ai";
+import { LyricsResponse } from "../types";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!API_KEY) {
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+if (!apiKey) {
     throw new Error("VITE_GEMINI_API_KEY environment variable not set");
 }
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenerativeAI(apiKey);
 
 const systemInstruction = `You are a world-class Chinese lyricist and music theorist AI. Your task is to take a user's idea and transform it into a complete song.
 1.  **Analyze the User's Prompt**: Carefully read the user's input to understand the core theme, story, and emotion.
