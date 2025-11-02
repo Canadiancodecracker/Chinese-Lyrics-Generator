@@ -1,0 +1,5 @@
+{
+  "name": "Chinese Musical Lyrics Generator",
+  "description": "An AI lyricist that turns any short idea or story into full Chinese song lyrics. The system automatically analyzes and creates complete lyrics — detecting music genre, rhythm, structure, and mood intelligently.",
+  "requestFramePermissions": []
+}
