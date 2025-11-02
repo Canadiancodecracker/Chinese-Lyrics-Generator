@@ -5,8 +5,7 @@ import Header from './components/Header';
 import PromptInput from './components/PromptInput';
 import LyricsDisplay from './components/LyricsDisplay';
 import Loader from './components/Loader';
-// Fix: Renamed 'Error' component import to 'ErrorDisplay' to avoid name collision with the built-in 'Error' class.
-import ErrorDisplay from './components/Error';
+import Error from './components/Error';
 
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -20,13 +19,14 @@ const App: React.FC = () => {
     "一只迷失在未来都市的猫",
   ];
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(async (currentPrompt: string) => {
     setIsLoading(true);
     setError(null);
     setLyricsResponse(null);
     try {
-      const response = await generateLyrics(prompt);
+      const response = await generateLyrics(currentPrompt);
       setLyricsResponse(response);
+    // Fix: Explicitly type the caught error as 'unknown' to enforce type-checking and allow for safe type narrowing.
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -36,7 +36,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900 bg-gradient-to-br from-gray-900 via-gray-900 to-cyan-900/50 text-white font-sans">
@@ -51,7 +51,7 @@ const App: React.FC = () => {
             examplePrompts={examplePrompts} 
           />
           {isLoading && <Loader />}
-          {error && <ErrorDisplay message={error} />}
+          {error && <Error message={error} />}
           {lyricsResponse && <LyricsDisplay data={lyricsResponse} />}
         </div>
       </main>

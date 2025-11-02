@@ -4,7 +4,7 @@ import { SparklesIcon } from './IconComponents';
 interface PromptInputProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: () => void;
+  onGenerate: (prompt: string) => void;
   isLoading: boolean;
   examplePrompts: string[];
 }
@@ -14,7 +14,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ prompt, setPrompt, onGenerate
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (prompt.trim()) {
-      onGenerate();
+      onGenerate(prompt);
     }
   };
 
