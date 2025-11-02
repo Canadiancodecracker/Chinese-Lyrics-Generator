@@ -39,7 +39,7 @@ export async function generateLyrics(prompt: string): Promise<LyricsResponse> {
                                 rhythm: { type: Type.STRING, description: "The suggested rhythm or tempo." },
                                 structure: { type: Type.STRING, description: "The song's lyrical structure." },
                             },
-                             required: ["genre", "mood", "rhythm", "structure"],
+                            required: ["genre", "mood", "rhythm", "structure"],
                         },
                         title: { type: Type.STRING, description: "The generated title in Simplified Chinese." },
                         lyrics: { type: Type.STRING, description: "The full lyrics in Simplified Chinese, with stanzas separated by newlines." },
