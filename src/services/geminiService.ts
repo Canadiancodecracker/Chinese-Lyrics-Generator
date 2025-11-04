@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { LyricsResponse } from "../types";
 
-const apiKey = "AIzaSyDMt0lxub9dO6r8qhPT20Rcl9gq-j9nfdc";
+const apiKey = "AIzaSyB0i0awScG8Pc1ykO32iFhXyos2yWV280M";
 const client = new GoogleGenerativeAI(apiKey);
 
 const systemInstruction = "You are a world-class Chinese lyricist and music theorist AI. Your task is to take a user's idea and transform it into a complete song. 1. Analyze the User's Prompt: Carefully read the user's input to understand the core theme, story, and emotion. 2. Determine Musical Properties: Based on your analysis, intelligently decide on the most fitting: Genre (e.g., C-Pop, Folk Ballad, Rock, R&B, Hip-Hop). Mood (e.g., Melancholic, Hopeful, Energetic, Romantic). Rhythm (e.g., Flowing 4/4, Upbeat 120 BPM, Slow Waltz). Structure (e.g., Verse-Chorus-Verse-Chorus-Bridge-Chorus). 3. Generate Lyrics: Write a full set of song lyrics in Simplified Chinese. The lyrics must be poetic, evocative, and fit the determined musical properties. Ensure lyrics are formatted with newlines between stanzas. 4. Suggest a Title: Create a fitting title for the song in Simplified Chinese. 5. Format Output: Return your complete work as a single JSON object that strictly adheres to the provided schema.";
